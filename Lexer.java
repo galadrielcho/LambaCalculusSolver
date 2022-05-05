@@ -18,9 +18,25 @@ public class Lexer {
 	public ArrayList<String> tokenize(String input) {
 		ArrayList<String> tokens = new ArrayList<String>();
 		int index = 0;
-		while (!(input.charAt(index) == ';') &&  index < input.length()) {
-			
-			index += 1;
+		char current = input.charAt(0);
+		int wordLength = 0;
+
+		
+		while (!(current == ';') &&  index < input.length()) {
+			current = input.charAt(index);
+			if (current >= 'a' && current <= 'z' || current >= 'A' && current <= 'Z') {
+				wordLength++;
+			} else {
+				if (wordLength > 0) {
+					tokens.add(input.substring(index - wordLength, index));
+					wordLength = 0;
+				}
+				if (current != ' ') {
+					tokens.add(Character.toString(current));
+
+				}
+			}
+			index++;
 		}
 
 		return tokens;
