@@ -23,13 +23,15 @@ public class Console {
 
 			String output = "";
 
-			try {
-				Expression exp = parser.parse(tokens);
-				output = exp.toString();
-			} catch (Exception e) {
-				System.out.println("Unparsable expression, input was: \"" + input + "\"");
-				input = cleanConsoleInput();
-				continue;
+			if (tokens.size() != 0) {
+				try {
+					Expression exp = parser.parse(tokens);
+					output = exp.toString();
+				} catch (Exception e) {
+					System.out.println("Unparsable expression, input was: \"" + input + "\"");
+					input = cleanConsoleInput();
+					continue;
+				}
 			}
 
 			System.out.println(output);
@@ -37,6 +39,7 @@ public class Console {
 			input = cleanConsoleInput();
 		}
 		System.out.println("Goodbye!");
+
 	}
 
 	/*

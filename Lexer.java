@@ -19,7 +19,6 @@ public class Lexer {
 		ArrayList<String> tokens = new ArrayList<String>();
 
 		if (input.length() == 0) {
-			tokens.add("");
 			return tokens;
 		}
 		int index = 0;
@@ -28,14 +27,15 @@ public class Lexer {
 
 		while (!(current == ';') && index < input.length()) {
 			current = input.charAt(index);
+			// if input is a letter
 			if (current >= 'a' && current <= 'z' || current >= 'A' && current <= 'Z') {
 				wordLength++;
 			} else {
 				if (wordLength > 0) {
 					tokens.add(input.substring(index - wordLength, index));
 					wordLength = 0;
-				}
-				if (current != ' ') {
+
+				} else if (current != ' ') {
 					tokens.add(Character.toString(current));
 
 				}

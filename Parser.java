@@ -18,13 +18,25 @@ public class Parser {
 	}
 
 	private Expression findExpressionInsideParens(ArrayList<String> arr, int closeParenIndex) throws ParseException {
-		int parenIndex = 0;
+		ArrayList<Expression> innerParenExpressions = new ArrayList<Expression>();
+
 		for (int i = closeParenIndex; i >= 0; i--) {
-			if ("(".equals(arr.get(i))) {
-				parenIndex = i;
+			if (arr.get(i).equals(")")) {
+				innerParenExpressions.add(findExpressionInsideParens(arr, i));
+			} else if (arr.get(i).equals("(")) {
+				if (numClosingParensInWay > 1) {
+					numClosingParensInWay--;
+				} else {
+					if (innerParenExpressions.size() == 0) {
+						return parse(subArrayList(arr, i + 1, closeParenIndex));
+					} else {
+						// make loop that creatse application that adds them left to writte
+					}
+				}
 			}
+
 		}
-		return parse(subArrayList(arr, parenIndex, closeParenIndex + 1));
+		throw new ParseException("Parentheses not balanced! :()", 0);
 	}
 
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
@@ -38,11 +50,13 @@ public class Parser {
 
 		String last = tokens.get(tokens.size() - 1);
 
-		if (last == ")") {
+		if (last.equals(")")) {
 
 			return findExpressionInsideParens(tokens, tokens.size() - 1);
 		}
+
 		if (tokens.size() == 1) {
+			// last remaining is letter
 			if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z' || last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
 				return new Variable(last);
 			}
