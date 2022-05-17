@@ -20,20 +20,15 @@ public class Parser {
 
 	private Expression findExpressionInsideParens(ArrayList<String> arr, int closeParenIndex) throws ParseException {
 		Stack<Integer> innerCloseParens = new Stack<Integer>();
-
 		for (int i = closeParenIndex - 1; i >= 0; i--) {
 			if (arr.get(i).equals(")")) {
 				innerCloseParens.push(i);
-			} else if (arr.get(i).equals("(")) {
-				if (innerCloseParens.size() == 0) {
-					return parse(subArrayList(arr, i + 1, closeParenIndex));
+			}
+			if (arr.get(i).equals("(")) {
+				if (innerCloseParens.size() > 0) {
+					findExpressionInsideParens(subArrayList(arr, i, innerCloseParens.pop()), closeParenIndex);
 				}
-				else if (innerCloseParens.size() > 0) {
-					ArrayList<String> insideParen = subArrayList(arr, i + 1, innerCloseParens.pop());
-					ArrayList<String> outsideParens = subArrayList(arr, 0, i);
-					outsideParens.add(")");
-					return new Application(parse(outsideParens), parse(insideParen));
-				}
+				return parse(subArrayList(arr, i + 1, closeParenIndex));
 			}
 
 		}
