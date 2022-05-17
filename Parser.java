@@ -1,6 +1,7 @@
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class Parser {
 
@@ -18,20 +19,20 @@ public class Parser {
 	}
 
 	private Expression findExpressionInsideParens(ArrayList<String> arr, int closeParenIndex) throws ParseException {
-		ArrayList<Expression> innerParenExpressions = new ArrayList<Expression>();
+		Stack<Integer> innerCloseParens = new Stack<Integer>();
 
-		for (int i = closeParenIndex; i >= 0; i--) {
+		for (int i = closeParenIndex - 1; i >= 0; i--) {
 			if (arr.get(i).equals(")")) {
-				innerParenExpressions.add(findExpressionInsideParens(arr, i));
+				innerCloseParens.push(i);
 			} else if (arr.get(i).equals("(")) {
-				if (numClosingParensInWay > 1) {
-					numClosingParensInWay--;
-				} else {
-					if (innerParenExpressions.size() == 0) {
-						return parse(subArrayList(arr, i + 1, closeParenIndex));
-					} else {
-						// make loop that creatse application that adds them left to writte
-					}
+				if (innerCloseParens.size() == 0) {
+					return parse(subArrayList(arr, i + 1, closeParenIndex));
+				}
+				else if (innerCloseParens.size() > 0) {
+					ArrayList<String> insideParen = subArrayList(arr, i + 1, innerCloseParens.pop());
+					ArrayList<String> outsideParens = subArrayList(arr, 0, i);
+					outsideParens.add(")");
+					return new Application(parse(outsideParens), parse(insideParen));
 				}
 			}
 
@@ -49,7 +50,7 @@ public class Parser {
 		// }
 
 		String last = tokens.get(tokens.size() - 1);
-
+		System.out.println("In parse:" + tokens);
 		if (last.equals(")")) {
 
 			return findExpressionInsideParens(tokens, tokens.size() - 1);

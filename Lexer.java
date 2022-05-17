@@ -34,6 +34,7 @@ public class Lexer {
 				if (wordLength > 0) {
 					tokens.add(input.substring(index - wordLength, index));
 					wordLength = 0;
+					// Not adding the parens..
 
 				} else if (current != ' ') {
 					tokens.add(Character.toString(current));
