@@ -11,4 +11,5 @@ public class Application implements Expression {
     public String toString() {
         return "(" + this.left + " " + this.right + ")";
     }
+    
 }

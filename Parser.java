@@ -1,6 +1,7 @@
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Stack;
 
 public class Parser {
@@ -17,28 +18,6 @@ public class Parser {
 		}
 		return subset;
 	}
-
-	private Expression findExpressionInsideParens(ArrayList<String> arr, int closeParenIndex) throws ParseException {
-		System.out.println("Find" + arr);
-		Stack<Integer> innerCloseParens = new Stack<Integer>();
-
-		for (int i = closeParenIndex - 1; i >= 0; i--) {
-			if (arr.get(i).equals(")")) {
-				innerCloseParens.push(i);
-			}
-			if (arr.get(i).equals("(")) {
-				if (innerCloseParens.size() > 0) {
-					ArrayList<String> left = subArrayList(arr, 0, i);
-					return new Application(findExpressionInsideParens(left, i),
-							parse(subArrayList(arr, i + 1, innerCloseParens.pop())));
-				}
-				return parse(subArrayList(arr, i + 1, closeParenIndex));
-			}
-
-		}
-		throw new ParseException("Parentheses not balanced! :()", 0);
-	}
-
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
 		// Variable var = new Variable(tokens.get(0));
 
@@ -47,11 +26,30 @@ public class Parser {
 		// if (var.toString().equals("error")) {
 		// throw new ParseException("User typed \"Error\" as the input!", 0);
 		// }
-		System.out.println("Parsing " + tokens);
+		// System.out.println("Parsing " + tokens);
 		String last = tokens.get(tokens.size() - 1);
-		if (last.equals(")")) {
 
-			return findExpressionInsideParens(tokens, tokens.size() - 1);
+		if (last.compareTo(")") == 0) {
+			int closedParensInWay = -1;
+			for (int i = tokens.size() - 1; i >= 0; i--) {
+				if (tokens.get(i).compareTo(")") == 0) {
+					closedParensInWay++;
+				} else if (tokens.get(i).compareTo("(") == 0) {
+					if (closedParensInWay == 0) {
+						if (i == 0) {
+							return parse(subArrayList(tokens, 1, tokens.size() - 1));
+						} else {
+							return new Application(parse(subArrayList(tokens, 0, i)),
+							parse(subArrayList(tokens, i + 1, tokens.size() - 1)));	
+						}				
+					} else {
+						closedParensInWay--;
+					}
+				}
+			}
+
+			throw new ParseException("Parentheses not balanced! :()", 0);
+
 		}
 
 		if (tokens.size() == 1) {
