@@ -19,14 +19,18 @@ public class Parser {
 	}
 
 	private Expression findExpressionInsideParens(ArrayList<String> arr, int closeParenIndex) throws ParseException {
+		System.out.println("Find" + arr);
 		Stack<Integer> innerCloseParens = new Stack<Integer>();
+
 		for (int i = closeParenIndex - 1; i >= 0; i--) {
 			if (arr.get(i).equals(")")) {
 				innerCloseParens.push(i);
 			}
 			if (arr.get(i).equals("(")) {
 				if (innerCloseParens.size() > 0) {
-					findExpressionInsideParens(subArrayList(arr, i, innerCloseParens.pop()), closeParenIndex);
+					ArrayList<String> left = subArrayList(arr, 0, i);
+					return new Application(findExpressionInsideParens(left, i),
+							parse(subArrayList(arr, i + 1, innerCloseParens.pop())));
 				}
 				return parse(subArrayList(arr, i + 1, closeParenIndex));
 			}
@@ -43,9 +47,8 @@ public class Parser {
 		// if (var.toString().equals("error")) {
 		// throw new ParseException("User typed \"Error\" as the input!", 0);
 		// }
-
+		System.out.println("Parsing " + tokens);
 		String last = tokens.get(tokens.size() - 1);
-		System.out.println("In parse:" + tokens);
 		if (last.equals(")")) {
 
 			return findExpressionInsideParens(tokens, tokens.size() - 1);
