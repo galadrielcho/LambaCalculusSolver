@@ -17,12 +17,32 @@ public class Parser {
 		return subset;
 	}
 
+	private int findFirstLambdaIndex(ArrayList<String> tokens) {
+		for (int i = 0; i < tokens.size(); i++) {
+			String current = tokens.get(i);
+			if (tokens.get(i).equals("(")) {
+				return -1;
+			}
+			else if (tokens.get(i).equals("λ")) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
 		String last = tokens.get(tokens.size() - 1);
 		String first = tokens.get(0);
-		System.out.println("Parsng" + tokens);
+		// System.out.println("Parsng" + tokens);
 
-		if (last.equals(")")) {
+		int lambdaIndex = findFirstLambdaIndex(tokens);
+		if (lambdaIndex == 0) {
+			// System.out.println(subArrayList(tokens, 3, tokens.size()));
+			return new Function(new Variable(tokens.get(1)), parse(subArrayList(tokens, 3, tokens.size())));
+		} else if (lambdaIndex > 0) {
+			return new Application(parse(subArrayList(tokens, 0, lambdaIndex)), parse(subArrayList(tokens, lambdaIndex, tokens.size())));
+		}
+		else if (last.equals(")")) {
 
 			int closedParensInWay = -1;
 			for (int i = tokens.size() - 1; i >= 0; i--) {
@@ -49,9 +69,6 @@ public class Parser {
 			if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z' || last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
 				return new Variable(last);
 			}
-		} else if (first.equals("λ")) {
-			System.out.println(subArrayList(tokens, 3, tokens.size()));
-			return new Function(new Variable(tokens.get(1)), parse(subArrayList(tokens, 3, tokens.size())));
 		}
 
 		return new Application(parse(subArrayList(tokens, 0, tokens.size() - 1)),
