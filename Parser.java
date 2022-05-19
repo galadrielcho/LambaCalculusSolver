@@ -1,8 +1,6 @@
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Stack;
 
 public class Parser {
 
@@ -19,22 +17,14 @@ public class Parser {
 		return subset;
 	}
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
-		// Variable var = new Variable(tokens.get(0));
-
-		// // This is nonsense code, just to show you how to thrown an Exception.
-		// // To throw it, type "error" at the console.
-		// if (var.toString().equals("error")) {
-		// throw new ParseException("User typed \"Error\" as the input!", 0);
-		// }
-		// System.out.println("Parsing " + tokens);
 		String last = tokens.get(tokens.size() - 1);
 
-		if (last.compareTo(")") == 0) {
+		if (last.equals(")")) {
 			int closedParensInWay = -1;
 			for (int i = tokens.size() - 1; i >= 0; i--) {
-				if (tokens.get(i).compareTo(")") == 0) {
+				if (tokens.get(i).equals(")")) {
 					closedParensInWay++;
-				} else if (tokens.get(i).compareTo("(") == 0) {
+				} else if (tokens.get(i).equals("(")) {
 					if (closedParensInWay == 0) {
 						if (i == 0) {
 							return parse(subArrayList(tokens, 1, tokens.size() - 1));
