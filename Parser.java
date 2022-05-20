@@ -1,6 +1,7 @@
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Parser {
 
@@ -9,7 +10,17 @@ public class Parser {
 	 * ready.
 	 */
 
-	private ArrayList<String> subArrayList(ArrayList<String> arr, int start, int end) {
+	private HashMap<String, Expression> dictionary = new HashMap<>();
+	
+	public boolean inDictionary(String s) {
+		return dictionary.containsKey(s);
+	}
+
+	public void addToDictionary(String key, Expression value) {
+		dictionary.put(key, value);
+	}
+
+	public ArrayList<String> subArrayList(ArrayList<String> arr, int start, int end) {
 		ArrayList<String> subset = new ArrayList<String>();
 		for (int i = start; i < end; i++) {
 			subset.add(arr.get(i));
