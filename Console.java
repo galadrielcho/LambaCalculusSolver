@@ -23,27 +23,28 @@ public class Console {
 			// System.out.println("Tokens: " + tokens);
 
 			String output = "";
-			try {
-				if (tokens.size() != 0) {
-					// Move this to parser.
-					if (tokens.size() > 1 && tokens.get(1).equals("=")) {
-						String name = tokens.get(0);
-						if (parser.inDictionary(name)) {
-							System.out.println(input + " is already defined.");
+
+			if (tokens.size() != 0) {
+				try {
+					if (parser.isStoringValue(tokens)) {
+						String key = tokens.get(0);
+						if (!parser.inDictionary(key)){
+							parser.addToDictionary(tokens);
+							System.out.printf("Added %s as %s.", parser.getDictValue(key).toString(), key);
+
 						} else {
-							parser.addToDictionary(name, parser.parse(parser.subArrayList(tokens, start, end)));
+							System.out.printf("%s is already defined.", parser.getDictValue(key).toString());
+							
 						}
+					} else {
+						Expression exp = parser.parse(tokens);
+						output = exp.toString();
 					}
-				} else {
-					Expression exp = parser.parse(tokens);
+				} catch (Exception e) {
+					System.out.println("Unparsable expression, input was: \"" + input + "\"");
+					input = cleanConsoleInput();
+					continue;
 				}
-
-				output = exp.toString();
-
-			} catch (Exception e) {
-				System.out.println("Unparsable expression, input was: \"" + input + "\"");
-				input = cleanConsoleInput();
-				continue;
 			}
 
 			System.out.println(output);

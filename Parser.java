@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Parser {
-
 	/*
-	 * Turns a set of tokens into an expression. Comment this back in when you're
-	 * ready.
+	 * Turns a set of tokens into an expression.
 	 */
 
 	private HashMap<String, Expression> dictionary = new HashMap<>();
@@ -16,11 +14,15 @@ public class Parser {
 		return dictionary.containsKey(s);
 	}
 
-	public void addToDictionary(String key, Expression value) {
-		dictionary.put(key, value);
+	public void addToDictionary(ArrayList<String> tokens) throws ParseException {
+		dictionary.put(tokens.get(0), parse(subArrayList(tokens, 2, tokens.size())));
 	}
 
-	public ArrayList<String> subArrayList(ArrayList<String> arr, int start, int end) {
+	public Expression getDictValue(String s) throws ParseException {
+		return dictionary.get(s);
+	}
+
+	private ArrayList<String> subArrayList(ArrayList<String> arr, int start, int end) {
 		ArrayList<String> subset = new ArrayList<String>();
 		for (int i = start; i < end; i++) {
 			subset.add(arr.get(i));
@@ -41,20 +43,23 @@ public class Parser {
 		return -1;
 	}
 
+	public boolean isStoringValue(ArrayList<String> tokens) {
+		return tokens.size() > 2 && tokens.get(1).equals("=");
+
+	} 
+
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
 		String last = tokens.get(tokens.size() - 1);
-		String first = tokens.get(0);
 		// System.out.println("Parsng" + tokens);
 
 		int lambdaIndex = findFirstLambdaIndex(tokens);
+
 		if (lambdaIndex == 0) {
 			// System.out.println(subArrayList(tokens, 3, tokens.size()));
 			return new Function(new Variable(tokens.get(1)), parse(subArrayList(tokens, 3, tokens.size())));
 		} else if (lambdaIndex > 0) {
 			return new Application(parse(subArrayList(tokens, 0, lambdaIndex)), parse(subArrayList(tokens, lambdaIndex, tokens.size())));
-		}
-		else if (last.equals(")")) {
-
+		} else if (last.equals(")")) {
 			int closedParensInWay = -1;
 			for (int i = tokens.size() - 1; i >= 0; i--) {
 				if (tokens.get(i).equals(")")) {
@@ -76,8 +81,10 @@ public class Parser {
 			throw new ParseException("Parentheses not balanced! :()", 0);
 
 		} else if (tokens.size() == 1) {
-			// last remaining is letter
-			if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z' || last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
+			if (inDictionary(last)) {
+				return dictionary.get(last);
+			}
+			else if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z' || last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
 				return new Variable(last);
 			}
 		}
