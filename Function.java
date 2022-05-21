@@ -1,12 +1,12 @@
 
 public class Function implements Expression {
 
-    public Variable v;
-    public Expression e;
+    public Variable parameter;
+    public Expression expression;
 
     public Function(Variable v, Expression e) {
-        this.v = v;
-        this.e = e;
+        this.parameter = v;
+        this.expression = e;
     }
 
     public String toString() {

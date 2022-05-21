@@ -1,12 +1,32 @@
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Console {
 	private static Scanner in;
+
+
+	private static boolean isStoringValue(ArrayList<String> tokens) {
+		return tokens.size() > 2 && tokens.get(1).equals("=");
+
+	}
+
+	public static Expression replace(Expression e, Variable parameter, Expression input) {
+		// TO DO
+		// Goes through tree and replace (eat)
+
+	}
+
+	public static Expression run(Expression exp) {
+		if (exp instanceof Application && ((Application)exp).left instanceof Function) {
+			Function func = (Function) ((Application) exp).left;
+			
+			return replace(func.expression, func.parameter, ((Application)exp).right);
+		}
+		return exp;
+	}
 
 	public static void main(String[] args) {
 		in = new Scanner(System.in);
@@ -26,25 +46,34 @@ public class Console {
 
 			if (tokens.size() != 0) {
 				try {
-					if (parser.isStoringValue(tokens)) {
-						String key = tokens.get(0);
-						if (!parser.inDictionary(key)){
+					String first = tokens.get(0);
+
+					if (isStoringValue(tokens)) {
+						if (!parser.inDictionary(first)){
 							parser.addToDictionary(tokens);
-							System.out.printf("Added %s as %s.", parser.getDictValue(key).toString(), key);
+							System.out.printf("Added %s as %s.", parser.getDictValue(first).toString(), first);
 
 						} else {
-							System.out.printf("%s is already defined.", parser.getDictValue(key).toString());
+							System.out.printf("%s is already defined.", parser.getDictValue(first).toString());
 							
 						}
 					} else {
 						Expression exp = parser.parse(tokens);
+						
+
+						if (exp instanceof Application && ((Application)exp).left.toString().equals("run")) {
+							exp = run(((Application)exp).right);
+						}
+
 						output = exp.toString();
+
 					}
 				} catch (Exception e) {
 					System.out.println("Unparsable expression, input was: \"" + input + "\"");
 					input = cleanConsoleInput();
 					continue;
 				}
+
 			}
 
 			System.out.println(output);

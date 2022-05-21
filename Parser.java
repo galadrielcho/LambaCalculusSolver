@@ -32,7 +32,6 @@ public class Parser {
 
 	private int findFirstLambdaIndex(ArrayList<String> tokens) {
 		for (int i = 0; i < tokens.size(); i++) {
-			String current = tokens.get(i);
 			if (tokens.get(i).equals("(")) {
 				return -1;
 			}
@@ -42,11 +41,6 @@ public class Parser {
 		}
 		return -1;
 	}
-
-	public boolean isStoringValue(ArrayList<String> tokens) {
-		return tokens.size() > 2 && tokens.get(1).equals("=");
-
-	} 
 
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
 		String last = tokens.get(tokens.size() - 1);

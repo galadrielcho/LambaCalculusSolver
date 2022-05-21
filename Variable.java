@@ -11,4 +11,8 @@ public class Variable implements Expression {
 		return name;
 	}
 
+	public boolean equals(Expression e) {
+		return this.name.equals(e.toString());
+	}
+
 }
