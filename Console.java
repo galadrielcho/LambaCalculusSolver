@@ -14,8 +14,21 @@ public class Console {
 	}
 
 	public static Expression replace(Expression e, Variable parameter, Expression input) {
-		// TO DO
-		// Goes through tree and replace (eat)
+
+		if (e instanceof Function) {
+			return new Function(((Function)e).parameter, replace(((Function)e).expression, parameter, input));
+		} else if (e instanceof Application) {
+			return run(new Application(replace(((Application)e).left, parameter, input), replace(((Application)e).right, parameter, input)));
+		} else if (e instanceof Variable){
+			// is variable
+			if (parameter.equals(e)) {
+				return input;
+			} else {
+				return e;
+			}
+		} else {
+			return null;
+		}
 
 	}
 
@@ -23,7 +36,7 @@ public class Console {
 		if (exp instanceof Application && ((Application)exp).left instanceof Function) {
 			Function func = (Function) ((Application) exp).left;
 			
-			return replace(func.expression, func.parameter, ((Application)exp).right);
+			return run(replace(func.expression, func.parameter, ((Application)exp).right));
 		}
 		return exp;
 	}
@@ -47,10 +60,15 @@ public class Console {
 			if (tokens.size() != 0) {
 				try {
 					String first = tokens.get(0);
-
+					Expression exp;
 					if (isStoringValue(tokens)) {
 						if (!parser.inDictionary(first)){
+							if (tokens.get(2).equals("run")) {
+								exp = parser.parse(parser.subArrayList(tokens, 3, tokens.size()));
+								parser.addToDictionary(first, run(exp));
+							} else {
 							parser.addToDictionary(tokens);
+							}
 							System.out.printf("Added %s as %s.", parser.getDictValue(first).toString(), first);
 
 						} else {
@@ -58,9 +76,8 @@ public class Console {
 							
 						}
 					} else {
-						Expression exp = parser.parse(tokens);
-						
-
+						exp = parser.parse(tokens);
+						// "run" command
 						if (exp instanceof Application && ((Application)exp).left.toString().equals("run")) {
 							exp = run(((Application)exp).right);
 						}

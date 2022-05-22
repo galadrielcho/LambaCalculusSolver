@@ -10,7 +10,7 @@ public class Function implements Expression {
     }
 
     public String toString() {
-        return String.format("(λ%s.%s)", v, e);
+        return String.format("(λ%s.%s)", parameter, expression);
     }
 
 }

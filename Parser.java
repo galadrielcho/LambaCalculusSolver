@@ -15,14 +15,19 @@ public class Parser {
 	}
 
 	public void addToDictionary(ArrayList<String> tokens) throws ParseException {
-		dictionary.put(tokens.get(0), parse(subArrayList(tokens, 2, tokens.size())));
+		Expression exp = parse(subArrayList(tokens, 2, tokens.size()));
+		dictionary.put(tokens.get(0), exp);
+	}
+
+	public void addToDictionary(String key, Expression value) {
+		dictionary.put(key, value);
 	}
 
 	public Expression getDictValue(String s) throws ParseException {
 		return dictionary.get(s);
 	}
 
-	private ArrayList<String> subArrayList(ArrayList<String> arr, int start, int end) {
+	public ArrayList<String> subArrayList(ArrayList<String> arr, int start, int end) {
 		ArrayList<String> subset = new ArrayList<String>();
 		for (int i = start; i < end; i++) {
 			subset.add(arr.get(i));
@@ -43,9 +48,13 @@ public class Parser {
 	}
 
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
+		if (tokens.get(0).equals("run")) {
+			return new Application(new Variable("run"), parse(subArrayList(tokens, 1, tokens.size())));
+		}
+
+
 		String last = tokens.get(tokens.size() - 1);
 		// System.out.println("Parsng" + tokens);
-
 		int lambdaIndex = findFirstLambdaIndex(tokens);
 
 		if (lambdaIndex == 0) {
