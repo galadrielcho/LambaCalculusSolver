@@ -9,7 +9,7 @@ public class Parser {
 	 */
 
 	private HashMap<String, Expression> dictionary = new HashMap<>();
-	
+
 	public boolean inDictionary(String s) {
 		return dictionary.containsKey(s);
 	}
@@ -39,8 +39,7 @@ public class Parser {
 		for (int i = 0; i < tokens.size(); i++) {
 			if (tokens.get(i).equals("(")) {
 				return -1;
-			}
-			else if (tokens.get(i).equals("λ")) {
+			} else if (tokens.get(i).equals("λ")) {
 				return i;
 			}
 		}
@@ -49,9 +48,8 @@ public class Parser {
 
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
 		if (tokens.get(0).equals("run")) {
-			return new Application(new Variable("run"), parse(subArrayList(tokens, 1, tokens.size())));
+			return new Application(new Variable("run", true), parse(subArrayList(tokens, 1, tokens.size())));
 		}
-
 
 		String last = tokens.get(tokens.size() - 1);
 		// System.out.println("Parsng" + tokens);
@@ -59,9 +57,10 @@ public class Parser {
 
 		if (lambdaIndex == 0) {
 			// System.out.println(subArrayList(tokens, 3, tokens.size()));
-			return new Function(new Variable(tokens.get(1)), parse(subArrayList(tokens, 3, tokens.size())));
+			return new Function(new Variable(tokens.get(1), false), parse(subArrayList(tokens, 3, tokens.size())));
 		} else if (lambdaIndex > 0) {
-			return new Application(parse(subArrayList(tokens, 0, lambdaIndex)), parse(subArrayList(tokens, lambdaIndex, tokens.size())));
+			return new Application(parse(subArrayList(tokens, 0, lambdaIndex)),
+					parse(subArrayList(tokens, lambdaIndex, tokens.size())));
 		} else if (last.equals(")")) {
 			int closedParensInWay = -1;
 			for (int i = tokens.size() - 1; i >= 0; i--) {
@@ -86,9 +85,9 @@ public class Parser {
 		} else if (tokens.size() == 1) {
 			if (inDictionary(last)) {
 				return dictionary.get(last);
-			}
-			else if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z' || last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
-				return new Variable(last);
+			} else if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z'
+					|| last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
+				return new Variable(last, true);
 			}
 		}
 
