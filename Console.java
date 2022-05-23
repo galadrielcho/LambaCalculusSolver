@@ -34,7 +34,7 @@ public class Console {
 		}
 
 	}
-run 
+
 	public static Expression run(Expression exp) {
 		if (exp instanceof Application && ((Application) exp).left instanceof Function) {
 			System.out.println("Run exp: " + exp);
