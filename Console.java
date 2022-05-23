@@ -7,21 +7,24 @@ import java.util.regex.Pattern;
 public class Console {
 	private static Scanner in;
 
-
 	private static boolean isStoringValue(ArrayList<String> tokens) {
 		return tokens.size() > 2 && tokens.get(1).equals("=");
 
 	}
 
-	public static Expression replace(Expression e, Variable parameter, Expression input) {
-
+	public static Expression replace(Expression e, Variable swapOut, Expression input) {
 		if (e instanceof Function) {
-			return new Function(((Function)e).parameter, replace(((Function)e).expression, parameter, input));
+			if ((((Function) e).parameter).equals(swapOut)) {
+				return e;
+			} else {
+				return new Function(((Function) e).parameter, replace(((Function) e).expression, swapOut, input));
+			}
 		} else if (e instanceof Application) {
-			return run(new Application(replace(((Application)e).left, parameter, input), replace(((Application)e).right, parameter, input)));
-		} else if (e instanceof Variable){
-			// is variable
-			if (parameter.equals(e)) {
+			return run(new Application(replace(((Application) e).left, swapOut, input),
+					replace(((Application) e).right, swapOut, input)));
+		} else if (e instanceof Variable) {
+
+			if (swapOut.nameEquals((Variable) e)) {
 				return input;
 			} else {
 				return e;
@@ -31,12 +34,12 @@ public class Console {
 		}
 
 	}
-
+run 
 	public static Expression run(Expression exp) {
-		if (exp instanceof Application && ((Application)exp).left instanceof Function) {
+		if (exp instanceof Application && ((Application) exp).left instanceof Function) {
+			System.out.println("Run exp: " + exp);
 			Function func = (Function) ((Application) exp).left;
-			
-			return run(replace(func.expression, func.parameter, ((Application)exp).right));
+			return run(replace(func.expression, func.parameter, ((Application) exp).right));
 		}
 		return exp;
 	}
@@ -62,24 +65,26 @@ public class Console {
 					String first = tokens.get(0);
 					Expression exp;
 					if (isStoringValue(tokens)) {
-						if (!parser.inDictionary(first)){
+						if (!parser.inDictionary(first)) {
 							if (tokens.get(2).equals("run")) {
 								exp = parser.parse(parser.subArrayList(tokens, 3, tokens.size()));
 								parser.addToDictionary(first, run(exp));
 							} else {
-							parser.addToDictionary(tokens);
+								parser.addToDictionary(tokens);
 							}
 							System.out.printf("Added %s as %s.", parser.getDictValue(first).toString(), first);
 
 						} else {
 							System.out.printf("%s is already defined.", parser.getDictValue(first).toString());
-							
+
 						}
 					} else {
 						exp = parser.parse(tokens);
-						// "run" command
-						if (exp instanceof Application && ((Application)exp).left.toString().equals("run")) {
-							exp = run(((Application)exp).right);
+						if (tokens.get(0).equals("run")) {
+							exp = run(parser.parse(parser.subArrayList(tokens, 1, tokens.size())));
+						} else {
+							exp = parser.parse(tokens);
+
 						}
 
 						output = exp.toString();
