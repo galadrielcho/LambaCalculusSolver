@@ -14,7 +14,7 @@ public class Console {
 
 	public static Expression replace(Expression e, Variable swapOut, Expression input) {
 		if (e instanceof Function) {
-			if ((((Function) e).parameter).equals(swapOut)) {
+			if ((((Function) e).parameter).nameEquals(swapOut)) {
 				return e;
 			} else {
 				return new Function(((Function) e).parameter, replace(((Function) e).expression, swapOut, input));

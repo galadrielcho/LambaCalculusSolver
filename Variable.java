@@ -2,19 +2,19 @@
 public class Variable implements Expression {
 
 	private String name;
-	private boolean free;
+	private String type;
 
-	public Variable(String name, boolean free) {
+	public Variable(String name, String type) {
 		this.name = name;
-		this.free = free;
+		this.type = type;
 	}
 
 	public String toString() {
 		return name;
 	}
 
-	public Boolean isFree() {
-		return free;
+	public String type() {
+		return this.type;
 	}
 
 	public Boolean nameEquals(Variable v) {

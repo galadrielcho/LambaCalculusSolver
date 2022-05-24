@@ -2,6 +2,7 @@
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
 public class Parser {
 	/*
@@ -9,6 +10,7 @@ public class Parser {
 	 */
 
 	private HashMap<String, Expression> dictionary = new HashMap<>();
+	private Stack<String> functionParameters = new Stack<>();
 
 	public boolean inDictionary(String s) {
 		return dictionary.containsKey(s);
@@ -48,7 +50,7 @@ public class Parser {
 
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
 		if (tokens.get(0).equals("run")) {
-			return new Application(new Variable("run", true), parse(subArrayList(tokens, 1, tokens.size())));
+			return new Application(new Variable("run", "free"), parse(subArrayList(tokens, 1, tokens.size())));
 		}
 
 		String last = tokens.get(tokens.size() - 1);
@@ -57,7 +59,11 @@ public class Parser {
 
 		if (lambdaIndex == 0) {
 			// System.out.println(subArrayList(tokens, 3, tokens.size()));
-			return new Function(new Variable(tokens.get(1), false), parse(subArrayList(tokens, 3, tokens.size())));
+			functionParameters.push(tokens.get(1));
+			Expression e = parse(subArrayList(tokens, 3, tokens.size()));
+			Function f = new Function(new Variable(functionParameters.pop(), "parameter"),
+					parse(subArrayList(tokens, 3, tokens.size())));
+			return f;
 		} else if (lambdaIndex > 0) {
 			return new Application(parse(subArrayList(tokens, 0, lambdaIndex)),
 					parse(subArrayList(tokens, lambdaIndex, tokens.size())));
@@ -87,7 +93,13 @@ public class Parser {
 				return dictionary.get(last);
 			} else if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z'
 					|| last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
-				return new Variable(last, true);
+				if (functionParameters.contains(last)) {
+					return new Variable(last, "bound");
+
+				} else {
+					return new Variable(last, "free");
+
+				}
 			}
 		}
 
