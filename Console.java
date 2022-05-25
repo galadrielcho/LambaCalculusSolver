@@ -1,4 +1,5 @@
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -12,16 +13,33 @@ public class Console {
 
 	}
 
-	public static Expression alphaReduce(Expression e, String name) {
+	public static Expression alphaReduce(Expression e, ArrayList<String> freeVariables) {
+		for (String name : freeVariables){
+			System.out.print("Free variable to AR: " + name);
+			e = replace(e, new Variable(name, "bound"), new Variable(name + "1", "bound"));
+
+		}
+		return e;		
+	}
+
+	public static ArrayList<String> getFreeVariables(Expression e) {
+		ArrayList<String> variableNames = new ArrayList<>();
 		
-		System.out.println( replace(e, new Variable(name, "bound"), new Variable(name + "1", "bound")));
-		return replace(e, new Variable(name, "bound"), new Variable(name + "1", "bound"));
-		
+		System.out.println((e));
+		if (e instanceof Variable && ((Variable)e).type().equals("free")) {
+			variableNames.add(e.toString());
+		}
+		else if (e instanceof Application) {
+			variableNames.addAll(getFreeVariables(((Application)e).left));
+			variableNames.addAll(getFreeVariables(((Application)e).right));
+		}
+
+		System.out.println("getting Variables: " + variableNames);
+		return variableNames;
 	}
 
 	// also known as "eat"
-	public static Expression replace(Expression e, Variable swapOut, Expression input) {
-
+	public static Expression replace(Expression e, Variable swapOut, Expression input) {		
 		if (e instanceof Function) {
 
 
@@ -36,8 +54,10 @@ public class Console {
 				return new Function(((Function) e).parameter, replace(((Function) e).expression, swapOut, input));
 			}
 		} else if (e instanceof Application) {
-			if (input instanceof Variable && ((Variable)input).type().equals("free")) {
-				return replace(alphaReduce(e, input.toString()), swapOut, new Variable(input.toString(), "bound"));
+			System.out.println("Applciation: " + e);
+			ArrayList<String> freeVariables = getFreeVariables(e);
+			if (freeVariables.size() > 0) {
+				return replace(alphaReduce(e, freeVariables), swapOut, new Variable(input.toString(), "bound"));
 			}
 			return run(new Application(replace(((Application) e).left, swapOut, input),
 					replace(((Application) e).right, swapOut, input)));
