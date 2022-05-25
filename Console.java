@@ -12,14 +12,33 @@ public class Console {
 
 	}
 
+	public static Expression alphaReduce(Expression e, String name) {
+		
+		System.out.println( replace(e, new Variable(name, "bound"), new Variable(name + "1", "bound")));
+		return replace(e, new Variable(name, "bound"), new Variable(name + "1", "bound"));
+		
+	}
+
+	// also known as "eat"
 	public static Expression replace(Expression e, Variable swapOut, Expression input) {
+
 		if (e instanceof Function) {
+
+
 			if ((((Function) e).parameter).nameEquals(swapOut)) {
+				
 				return e;
-			} else {
+			} else if (input instanceof Variable && ((((Function) e).parameter).nameEquals((Variable) input))) {
+				return new Function(new Variable(((Function) e).parameter.toString() + "1", 
+			"parameter"), replace(((Function) e).expression, swapOut, input)); 
+			}
+			else {
 				return new Function(((Function) e).parameter, replace(((Function) e).expression, swapOut, input));
 			}
 		} else if (e instanceof Application) {
+			if (input instanceof Variable && ((Variable)input).type().equals("free")) {
+				return replace(alphaReduce(e, input.toString()), swapOut, new Variable(input.toString(), "bound"));
+			}
 			return run(new Application(replace(((Application) e).left, swapOut, input),
 					replace(((Application) e).right, swapOut, input)));
 		} else if (e instanceof Variable) {
@@ -37,7 +56,7 @@ public class Console {
 
 	public static Expression run(Expression exp) {
 		if (exp instanceof Application && ((Application) exp).left instanceof Function) {
-			System.out.println("Run exp: " + exp);
+			// System.out.println("Run exp: " + exp);
 			Function func = (Function) ((Application) exp).left;
 			return run(replace(func.expression, func.parameter, ((Application) exp).right));
 		}
@@ -79,7 +98,6 @@ public class Console {
 
 						}
 					} else {
-						exp = parser.parse(tokens);
 						if (tokens.get(0).equals("run")) {
 							exp = run(parser.parse(parser.subArrayList(tokens, 1, tokens.size())));
 						} else {

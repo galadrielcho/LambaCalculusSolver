@@ -49,6 +49,7 @@ public class Parser {
 	}
 
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
+		// System.out.println("Parse " + tokens);
 		if (tokens.get(0).equals("run")) {
 			return new Application(new Variable("run", "free"), parse(subArrayList(tokens, 1, tokens.size())));
 		}
@@ -61,8 +62,8 @@ public class Parser {
 			// System.out.println(subArrayList(tokens, 3, tokens.size()));
 			functionParameters.push(tokens.get(1));
 			Expression e = parse(subArrayList(tokens, 3, tokens.size()));
-			Function f = new Function(new Variable(functionParameters.pop(), "parameter"),
-					parse(subArrayList(tokens, 3, tokens.size())));
+			Function f = new Function(new Variable(functionParameters.pop(), "parameter"), e);
+			// System.out.println(functionParameters);
 			return f;
 		} else if (lambdaIndex > 0) {
 			return new Application(parse(subArrayList(tokens, 0, lambdaIndex)),
@@ -94,9 +95,11 @@ public class Parser {
 			} else if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z'
 					|| last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
 				if (functionParameters.contains(last)) {
+					// System.out.println("Making bound : " + last);
 					return new Variable(last, "bound");
 
 				} else {
+					// System.out.println("Making free : " + last);
 					return new Variable(last, "free");
 
 				}
