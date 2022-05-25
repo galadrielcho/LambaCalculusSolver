@@ -1,4 +1,3 @@
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -13,21 +12,26 @@ public class Console {
 
 	}
 
-	public static Expression alphaReduce(Expression e, ArrayList<String> freeVariables) {
-		for (String name : freeVariables){
-			System.out.print("Free variable to AR: " + name);
-			e = replace(e, new Variable(name, "bound"), new Variable(name + "1", "bound"));
+	public static Expression alphaReduce(Expression e, Variable v) {
+		if (e instanceof Application) {
+			return new Application(alphaReduce(((Application)e).left, v), alphaReduce(((Application)e).right, name));
+		} else if (e instanceof Function) {
+			if (((Function)e).parameter.nameEquals(v)){
+				return new Function(new Variable(v.toString() + "1", "parameter", ))
 
+			}
+			return new Function(new Variable(name +, "parameter"), )
 		}
-		return e;		
-	}
+		
+	}	
+	
 
-	public static ArrayList<String> getFreeVariables(Expression e) {
-		ArrayList<String> variableNames = new ArrayList<>();
+	public static ArrayList<Variable> getFreeVariables(Expression e) {
+		ArrayList<Variable> variableNames = new ArrayList<>();
 		
 		System.out.println((e));
 		if (e instanceof Variable && ((Variable)e).type().equals("free")) {
-			variableNames.add(e.toString());
+			variableNames.add((Variable)e);
 		}
 		else if (e instanceof Application) {
 			variableNames.addAll(getFreeVariables(((Application)e).left));
@@ -54,11 +58,6 @@ public class Console {
 				return new Function(((Function) e).parameter, replace(((Function) e).expression, swapOut, input));
 			}
 		} else if (e instanceof Application) {
-			System.out.println("Applciation: " + e);
-			ArrayList<String> freeVariables = getFreeVariables(e);
-			if (freeVariables.size() > 0) {
-				return replace(alphaReduce(e, freeVariables), swapOut, new Variable(input.toString(), "bound"));
-			}
 			return run(new Application(replace(((Application) e).left, swapOut, input),
 					replace(((Application) e).right, swapOut, input)));
 		} else if (e instanceof Variable) {
@@ -76,7 +75,12 @@ public class Console {
 
 	public static Expression run(Expression exp) {
 		if (exp instanceof Application && ((Application) exp).left instanceof Function) {
-			// System.out.println("Run exp: " + exp);
+			ArrayList<Variable> freeVariables = getFreeVariables(exp);
+			if (freeVariables.size() > 0) {
+				for (Variable v : freeVariables){
+					exp = alphaReduce(exp, v);
+				}
+			}
 			Function func = (Function) ((Application) exp).left;
 			return run(replace(func.expression, func.parameter, ((Application) exp).right));
 		}
