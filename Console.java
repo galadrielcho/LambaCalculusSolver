@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public class Console {
 	private static Scanner in;
 
-	private static HashMap<Expression, String> expToNameDictionary = new HashMap<>();
+	private static HashMap<Expression, String> dictionary = new HashMap<>();
 	// the above dicitonary is yuck
 
 	private static boolean isStoringValue(ArrayList<String> tokens) {
@@ -98,8 +98,8 @@ public class Console {
 	}
 
 	public static Expression getDictionaryNames(Expression e) {
-		if (expToNameDictionary.containsKey(e)) {
-			return new Variable(expToNameDictionary.get(e), "");
+		if (dictionary.containsKey(e)) {
+			return new Variable(dictionary.get(e), "");
 		} else if (e instanceof Application) {
 			return new Application(getDictionaryNames(((Application) e).left),
 					getDictionaryNames(((Application) e).right));
@@ -135,7 +135,7 @@ public class Console {
 								parser.addToDictionary(first, run(exp));
 							} else {
 								exp = parser.addToDictionary(tokens);
-								expToNameDictionary.put(exp, first);
+								dictionary.put(exp, first);
 							}
 							System.out.printf("Added %s as %s.", parser.getDictValue(first).toString(), first);
 
@@ -150,7 +150,7 @@ public class Console {
 							exp = parser.parse(tokens);
 
 						}
-
+						exp = getDictionaryNames(exp);
 						output = exp.toString();
 
 					}
@@ -162,7 +162,7 @@ public class Console {
 
 			}
 
-			System.out.println(expToNameDictionary.get(output));
+			System.out.println(output);
 
 			input = cleanConsoleInput();
 		}
