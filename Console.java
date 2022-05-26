@@ -138,9 +138,9 @@ public class Console {
 					if (isStoringValue(tokens)) {
 						if (!parser.inDictionary(first)) {
 							if (tokens.get(2).equals("run")) {
-								exp = parser.parse(parser.subArrayList(tokens, 3, tokens.size()));
+								exp = run(parser.parse(parser.subArrayList(tokens, 3, tokens.size())));
 								dictionary.put(exp.toString(), first);
-								parser.addToDictionary(first, run(exp));
+								parser.addToDictionary(first, exp);
 							} else {
 								exp = parser.addToDictionary(tokens);
 
