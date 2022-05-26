@@ -28,7 +28,7 @@ public class Lexer {
 		while (!(current == ';') && index < input.length()) {
 			current = input.charAt(index);
 			// if input is a letter
-			if (current >= 'a' && current <= 'z' || current >= 'A' && current <= 'Z') {
+			if (current >= '!' && current <= '~') {
 				wordLength++;
 			} else {
 				if (wordLength > 0) {

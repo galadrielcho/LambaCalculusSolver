@@ -49,7 +49,7 @@ public class Parser {
 	}
 
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
-		// System.out.println("Parse " + tokens);
+		System.out.println("Parse " + tokens);
 		if (tokens.get(0).equals("run")) {
 			return new Application(new Variable("run", "free"), parse(subArrayList(tokens, 1, tokens.size())));
 		}
@@ -92,8 +92,7 @@ public class Parser {
 		} else if (tokens.size() == 1) {
 			if (inDictionary(last)) {
 				return dictionary.get(last);
-			} else if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z'
-					|| last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
+			} else if (last.charAt(0) >= '!' && last.charAt(0) <= '~') {
 				if (functionParameters.contains(last)) {
 					// System.out.println("Making bound : " + last);
 					return new Variable(last, "bound");

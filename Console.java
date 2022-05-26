@@ -1,4 +1,3 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -13,15 +12,25 @@ public class Console {
 	}
 
 	public static Expression alphaReduce(Expression e, Variable v) {
+		// System.out.println("oing into alpha reduce exp: " + e);
+		// System.out.println("oing into alpha reduce v: " + v);
+
+
 		if (e instanceof Application) {
-			return new Application(alphaReduce(((Application)e).left, v), alphaReduce(((Application)e).right, name));
+			return new Application(alphaReduce(((Application)e).left, v), alphaReduce(((Application)e).right, v));
 		} else if (e instanceof Function) {
 			if (((Function)e).parameter.nameEquals(v)){
-				return new Function(new Variable(v.toString() + "1", "parameter", ))
-
+				return new Function(new Variable(v.toString() + "1", "parameter"), replace(((Function)e).expression, v, new Variable(v.toString() + "1", "bound")));
 			}
-			return new Function(new Variable(name +, "parameter"), )
+			return new Function(((Function)e).parameter, alphaReduce(((Function)e).expression, v));
+		} else if (e instanceof Variable) {
+			if (((Variable)e).nameEquals(v) && ((Variable)e).type().equals("bound")) {
+				return new Variable(v.toString() + "1", "bound");
+			}
+			return e;
 		}
+
+		return e;
 		
 	}	
 	
@@ -29,7 +38,7 @@ public class Console {
 	public static ArrayList<Variable> getFreeVariables(Expression e) {
 		ArrayList<Variable> variableNames = new ArrayList<>();
 		
-		System.out.println((e));
+		// System.out.println((e));
 		if (e instanceof Variable && ((Variable)e).type().equals("free")) {
 			variableNames.add((Variable)e);
 		}
@@ -38,19 +47,20 @@ public class Console {
 			variableNames.addAll(getFreeVariables(((Application)e).right));
 		}
 
-		System.out.println("getting Variables: " + variableNames);
+		// System.out.println("getting Variables: " + variableNames);
 		return variableNames;
 	}
 
 	// also known as "eat"
 	public static Expression replace(Expression e, Variable swapOut, Expression input) {		
+		// System.out.println("REplacing " + e);
+		// System.out.println("INput: " + input);
 		if (e instanceof Function) {
-
-
 			if ((((Function) e).parameter).nameEquals(swapOut)) {
 				
 				return e;
 			} else if (input instanceof Variable && ((((Function) e).parameter).nameEquals((Variable) input))) {
+				// System.out.println("etting here");
 				return new Function(new Variable(((Function) e).parameter.toString() + "1", 
 			"parameter"), replace(((Function) e).expression, swapOut, input)); 
 			}
@@ -61,6 +71,9 @@ public class Console {
 			return run(new Application(replace(((Application) e).left, swapOut, input),
 					replace(((Application) e).right, swapOut, input)));
 		} else if (e instanceof Variable) {
+			// System.out.println("Hellloo?? " + e);
+			// System.out.println("Swap: " + swapOut);
+			// System.out.println("input " + input);
 
 			if (swapOut.nameEquals((Variable) e)) {
 				return input;
@@ -78,7 +91,10 @@ public class Console {
 			ArrayList<Variable> freeVariables = getFreeVariables(exp);
 			if (freeVariables.size() > 0) {
 				for (Variable v : freeVariables){
+					// System.out.println("Before reduction " + exp);
+
 					exp = alphaReduce(exp, v);
+					// System.out.println("Expression " + exp);
 				}
 			}
 			Function func = (Function) ((Application) exp).left;
