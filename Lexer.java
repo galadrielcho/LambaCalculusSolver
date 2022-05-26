@@ -3,6 +3,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Lexer {
+	String reservedCharacters = "λ\\().; ";
 
 	/*
 	 * A lexer (or "tokenizer") converts an input into tokens that
@@ -26,8 +27,8 @@ public class Lexer {
 
 		while (!(current == ';') && index < input.length()) {
 			current = input.charAt(index);
-			// if input is a letter
-			if (current >= 'a' && current <= 'z' || current >= 'A' && current <= 'Z') {
+			// if input is not a reserved character
+			if (reservedCharacters.indexOf(current) == -1) {
 				wordLength++;
 			} else {
 				if (wordLength > 0) {

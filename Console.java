@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public class Console {
 	private static Scanner in;
 
-	private static HashMap<Expression, String> dictionary = new HashMap<>();
+	private static HashMap<String, String> dictionary = new HashMap<>();
 	// the above dicitonary is yuck
 
 	private static boolean isStoringValue(ArrayList<String> tokens) {
@@ -55,7 +55,6 @@ public class Console {
 
 				return e;
 			} else if (input instanceof Variable && ((((Function) e).parameter).nameEquals((Variable) input))) {
-				// System.out.println("etting here");
 				return new Function(new Variable(((Function) e).parameter.toString() + "1",
 						"parameter"), replace(((Function) e).expression, swapOut, input));
 			} else {
@@ -77,8 +76,8 @@ public class Console {
 	}
 
 	public static Expression run(Expression exp) {
-
 		if (exp instanceof Application) {
+
 			if (((Application) exp).left instanceof Function) {
 				ArrayList<Variable> freeVariables = getFreeVariables(exp);
 				if (freeVariables.size() > 0) {
@@ -89,21 +88,29 @@ public class Console {
 				Function func = (Function) ((Application) exp).left;
 				return run(replace(func.expression, func.parameter, ((Application) exp).right));
 			} else {
-				return run(new Application(run(((Application) exp).left), run(((Application) exp).right)));
+				Application app = new Application(run(((Application) exp).left), run(((Application) exp).right));
+				if (app.left instanceof Function) {
+					return run(app);
+				} else {
+					return app;
+				}
 			}
 		} else if (exp instanceof Function) {
+
 			return new Function(((Function) exp).parameter, run(((Function) exp).expression));
 		}
 		return exp;
 	}
 
 	public static Expression getDictionaryNames(Expression e) {
-		if (dictionary.containsKey(e)) {
-			return new Variable(dictionary.get(e), "");
+		System.out.println("Getting dictionary name : " + e);
+		if (dictionary.containsKey(e.toString())) {
+			return new Variable(dictionary.get(e.toString()), "");
 		} else if (e instanceof Application) {
 			return new Application(getDictionaryNames(((Application) e).left),
 					getDictionaryNames(((Application) e).right));
 		} else if (e instanceof Function) {
+			System.out.println("here !! exp: " + e);
 			return new Function(new Variable(getDictionaryNames(((Function) e).parameter).toString(), "parameter"),
 					getDictionaryNames(((Function) e).expression));
 		} else {
@@ -123,7 +130,7 @@ public class Console {
 
 			ArrayList<String> tokens = lexer.tokenize(input);
 			String output = "";
-
+			System.out.println(tokens);
 			if (tokens.size() != 0) {
 				try {
 					String first = tokens.get(0);
@@ -132,10 +139,12 @@ public class Console {
 						if (!parser.inDictionary(first)) {
 							if (tokens.get(2).equals("run")) {
 								exp = parser.parse(parser.subArrayList(tokens, 3, tokens.size()));
+								dictionary.put(exp.toString(), first);
 								parser.addToDictionary(first, run(exp));
 							} else {
 								exp = parser.addToDictionary(tokens);
-								dictionary.put(exp, first);
+
+								dictionary.put(exp.toString(), first);
 							}
 							System.out.printf("Added %s as %s.", parser.getDictValue(first).toString(), first);
 
@@ -150,6 +159,9 @@ public class Console {
 							exp = parser.parse(tokens);
 
 						}
+
+						System.out.println("Before dictionarying : " + exp);
+						System.out.println(dictionary);
 						exp = getDictionaryNames(exp);
 						output = exp.toString();
 
