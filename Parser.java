@@ -16,9 +16,11 @@ public class Parser {
 		return dictionary.containsKey(s);
 	}
 
-	public void addToDictionary(ArrayList<String> tokens) throws ParseException {
+	public Expression addToDictionary(ArrayList<String> tokens) throws ParseException {
 		Expression exp = parse(subArrayList(tokens, 2, tokens.size()));
 		dictionary.put(tokens.get(0), exp);
+
+		return exp;
 	}
 
 	public void addToDictionary(String key, Expression value) {
@@ -65,7 +67,7 @@ public class Parser {
 			return new Application(parse(subArrayList(tokens, 0, lambdaIndex)),
 					parse(subArrayList(tokens, lambdaIndex, tokens.size())));
 		} else if (last.equals(")")) {
-			System.out.println("Test");
+			// System.out.println("Test");
 			int closedParensInWay = -1;
 			for (int i = tokens.size() - 1; i >= 0; i--) {
 				if (tokens.get(i).equals(")")) {

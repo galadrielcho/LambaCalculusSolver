@@ -1,10 +1,14 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Console {
 	private static Scanner in;
+
+	private static HashMap<Expression, String> expToNameDictionary = new HashMap<>();
+	// the above dicitonary is yuck
 
 	private static boolean isStoringValue(ArrayList<String> tokens) {
 		return tokens.size() > 2 && tokens.get(1).equals("=");
@@ -13,50 +17,48 @@ public class Console {
 
 	public static Expression alphaReduce(Expression e, Variable v) {
 		if (e instanceof Application) {
-			return new Application(alphaReduce(((Application)e).left, v), alphaReduce(((Application)e).right, v));
+			return new Application(alphaReduce(((Application) e).left, v), alphaReduce(((Application) e).right, v));
 		} else if (e instanceof Function) {
-			if (((Function)e).parameter.nameEquals(v)){
-				return new Function(new Variable(v.toString() + "1", "parameter"), replace(((Function)e).expression, v, new Variable(v.toString() + "1", "bound")));
+			if (((Function) e).parameter.nameEquals(v)) {
+				return new Function(new Variable(v.toString() + "1", "parameter"),
+						replace(((Function) e).expression, v, new Variable(v.toString() + "1", "bound")));
 			}
-			return new Function(((Function)e).parameter, alphaReduce(((Function)e).expression, v));
+			return new Function(((Function) e).parameter, alphaReduce(((Function) e).expression, v));
 		} else if (e instanceof Variable) {
-			if (((Variable)e).nameEquals(v) && ((Variable)e).type().equals("bound")) {
+			if (((Variable) e).nameEquals(v) && ((Variable) e).type().equals("bound")) {
 				return new Variable(v.toString() + "1", "bound");
 			}
 			return e;
 		}
 
 		return e;
-		
-	}	
-	
+
+	}
 
 	public static ArrayList<Variable> getFreeVariables(Expression e) {
 		ArrayList<Variable> variableNames = new ArrayList<>();
-		
-		if (e instanceof Variable && ((Variable)e).type().equals("free")) {
-			variableNames.add((Variable)e);
-		}
-		else if (e instanceof Application) {
-			variableNames.addAll(getFreeVariables(((Application)e).left));
-			variableNames.addAll(getFreeVariables(((Application)e).right));
+
+		if (e instanceof Variable && ((Variable) e).type().equals("free")) {
+			variableNames.add((Variable) e);
+		} else if (e instanceof Application) {
+			variableNames.addAll(getFreeVariables(((Application) e).left));
+			variableNames.addAll(getFreeVariables(((Application) e).right));
 		}
 
 		return variableNames;
 	}
 
 	// also known as "eat"
-	public static Expression replace(Expression e, Variable swapOut, Expression input) {		
+	public static Expression replace(Expression e, Variable swapOut, Expression input) {
 		if (e instanceof Function) {
 			if ((((Function) e).parameter).nameEquals(swapOut)) {
-				
+
 				return e;
 			} else if (input instanceof Variable && ((((Function) e).parameter).nameEquals((Variable) input))) {
 				// System.out.println("etting here");
-				return new Function(new Variable(((Function) e).parameter.toString() + "1", 
-			"parameter"), replace(((Function) e).expression, swapOut, input)); 
-			}
-			else {
+				return new Function(new Variable(((Function) e).parameter.toString() + "1",
+						"parameter"), replace(((Function) e).expression, swapOut, input));
+			} else {
 				return new Function(((Function) e).parameter, replace(((Function) e).expression, swapOut, input));
 			}
 		} else if (e instanceof Application) {
@@ -80,21 +82,33 @@ public class Console {
 			if (((Application) exp).left instanceof Function) {
 				ArrayList<Variable> freeVariables = getFreeVariables(exp);
 				if (freeVariables.size() > 0) {
-					for (Variable v : freeVariables){
+					for (Variable v : freeVariables) {
 						exp = alphaReduce(exp, v);
 					}
 				}
 				Function func = (Function) ((Application) exp).left;
 				return run(replace(func.expression, func.parameter, ((Application) exp).right));
+			} else {
+				return run(new Application(run(((Application) exp).left), run(((Application) exp).right)));
 			}
-			else {
-				return new Application(run(((Application) exp).left), run(((Application) exp).right));
-			}
-		}
-		else if (exp instanceof Function) {
-			return new Function(((Function)exp).parameter, run(((Function)exp).expression));
+		} else if (exp instanceof Function) {
+			return new Function(((Function) exp).parameter, run(((Function) exp).expression));
 		}
 		return exp;
+	}
+
+	public static Expression getDictionaryNames(Expression e) {
+		if (expToNameDictionary.containsKey(e)) {
+			return new Variable(expToNameDictionary.get(e), "");
+		} else if (e instanceof Application) {
+			return new Application(getDictionaryNames(((Application) e).left),
+					getDictionaryNames(((Application) e).right));
+		} else if (e instanceof Function) {
+			return new Function(new Variable(getDictionaryNames(((Function) e).parameter).toString(), "parameter"),
+					getDictionaryNames(((Function) e).expression));
+		} else {
+			return e;
+		}
 	}
 
 	public static void main(String[] args) {
@@ -120,7 +134,8 @@ public class Console {
 								exp = parser.parse(parser.subArrayList(tokens, 3, tokens.size()));
 								parser.addToDictionary(first, run(exp));
 							} else {
-								parser.addToDictionary(tokens);
+								exp = parser.addToDictionary(tokens);
+								expToNameDictionary.put(exp, first);
 							}
 							System.out.printf("Added %s as %s.", parser.getDictValue(first).toString(), first);
 
@@ -147,7 +162,7 @@ public class Console {
 
 			}
 
-			System.out.println(output);
+			System.out.println(expToNameDictionary.get(output));
 
 			input = cleanConsoleInput();
 		}
