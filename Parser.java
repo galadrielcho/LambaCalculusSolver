@@ -49,26 +49,23 @@ public class Parser {
 	}
 
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
-		System.out.println("Parse " + tokens);
 		if (tokens.get(0).equals("run")) {
 			return new Application(new Variable("run", "free"), parse(subArrayList(tokens, 1, tokens.size())));
 		}
 
 		String last = tokens.get(tokens.size() - 1);
-		// System.out.println("Parsng" + tokens);
 		int lambdaIndex = findFirstLambdaIndex(tokens);
 
 		if (lambdaIndex == 0) {
-			// System.out.println(subArrayList(tokens, 3, tokens.size()));
 			functionParameters.push(tokens.get(1));
 			Expression e = parse(subArrayList(tokens, 3, tokens.size()));
 			Function f = new Function(new Variable(functionParameters.pop(), "parameter"), e);
-			// System.out.println(functionParameters);
 			return f;
 		} else if (lambdaIndex > 0) {
 			return new Application(parse(subArrayList(tokens, 0, lambdaIndex)),
 					parse(subArrayList(tokens, lambdaIndex, tokens.size())));
 		} else if (last.equals(")")) {
+			System.out.println("Test");
 			int closedParensInWay = -1;
 			for (int i = tokens.size() - 1; i >= 0; i--) {
 				if (tokens.get(i).equals(")")) {
@@ -90,15 +87,16 @@ public class Parser {
 			throw new ParseException("Parentheses not balanced! :()", 0);
 
 		} else if (tokens.size() == 1) {
+
 			if (inDictionary(last)) {
+
 				return dictionary.get(last);
-			} else if (last.charAt(0) >= '!' && last.charAt(0) <= '~') {
+			} else if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z'
+					|| last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
 				if (functionParameters.contains(last)) {
-					// System.out.println("Making bound : " + last);
 					return new Variable(last, "bound");
 
 				} else {
-					// System.out.println("Making free : " + last);
 					return new Variable(last, "free");
 
 				}

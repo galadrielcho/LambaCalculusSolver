@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,7 +27,7 @@ public class Lexer {
 		while (!(current == ';') && index < input.length()) {
 			current = input.charAt(index);
 			// if input is a letter
-			if (current >= '!' && current <= '~') {
+			if (current >= 'a' && current <= 'z' || current >= 'A' && current <= 'Z') {
 				wordLength++;
 			} else {
 				if (wordLength > 0) {

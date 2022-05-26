@@ -12,10 +12,6 @@ public class Console {
 	}
 
 	public static Expression alphaReduce(Expression e, Variable v) {
-		// System.out.println("oing into alpha reduce exp: " + e);
-		// System.out.println("oing into alpha reduce v: " + v);
-
-
 		if (e instanceof Application) {
 			return new Application(alphaReduce(((Application)e).left, v), alphaReduce(((Application)e).right, v));
 		} else if (e instanceof Function) {
@@ -38,7 +34,6 @@ public class Console {
 	public static ArrayList<Variable> getFreeVariables(Expression e) {
 		ArrayList<Variable> variableNames = new ArrayList<>();
 		
-		// System.out.println((e));
 		if (e instanceof Variable && ((Variable)e).type().equals("free")) {
 			variableNames.add((Variable)e);
 		}
@@ -47,14 +42,11 @@ public class Console {
 			variableNames.addAll(getFreeVariables(((Application)e).right));
 		}
 
-		// System.out.println("getting Variables: " + variableNames);
 		return variableNames;
 	}
 
 	// also known as "eat"
 	public static Expression replace(Expression e, Variable swapOut, Expression input) {		
-		// System.out.println("REplacing " + e);
-		// System.out.println("INput: " + input);
 		if (e instanceof Function) {
 			if ((((Function) e).parameter).nameEquals(swapOut)) {
 				
@@ -71,10 +63,6 @@ public class Console {
 			return run(new Application(replace(((Application) e).left, swapOut, input),
 					replace(((Application) e).right, swapOut, input)));
 		} else if (e instanceof Variable) {
-			// System.out.println("Hellloo?? " + e);
-			// System.out.println("Swap: " + swapOut);
-			// System.out.println("input " + input);
-
 			if (swapOut.nameEquals((Variable) e)) {
 				return input;
 			} else {
@@ -87,18 +75,24 @@ public class Console {
 	}
 
 	public static Expression run(Expression exp) {
-		if (exp instanceof Application && ((Application) exp).left instanceof Function) {
-			ArrayList<Variable> freeVariables = getFreeVariables(exp);
-			if (freeVariables.size() > 0) {
-				for (Variable v : freeVariables){
-					// System.out.println("Before reduction " + exp);
 
-					exp = alphaReduce(exp, v);
-					// System.out.println("Expression " + exp);
+		if (exp instanceof Application) {
+			if (((Application) exp).left instanceof Function) {
+				ArrayList<Variable> freeVariables = getFreeVariables(exp);
+				if (freeVariables.size() > 0) {
+					for (Variable v : freeVariables){
+						exp = alphaReduce(exp, v);
+					}
 				}
+				Function func = (Function) ((Application) exp).left;
+				return run(replace(func.expression, func.parameter, ((Application) exp).right));
 			}
-			Function func = (Function) ((Application) exp).left;
-			return run(replace(func.expression, func.parameter, ((Application) exp).right));
+			else {
+				return new Application(run(((Application) exp).left), run(((Application) exp).right));
+			}
+		}
+		else if (exp instanceof Function) {
+			return new Function(((Function)exp).parameter, run(((Function)exp).expression));
 		}
 		return exp;
 	}
@@ -114,9 +108,6 @@ public class Console {
 		while (!input.equalsIgnoreCase("exit")) {
 
 			ArrayList<String> tokens = lexer.tokenize(input);
-
-			// System.out.println("Tokens: " + tokens);
-
 			String output = "";
 
 			if (tokens.size() != 0) {
