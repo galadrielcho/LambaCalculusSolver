@@ -122,9 +122,9 @@ public class Console {
 		Expression current = exp;
 		Expression run = runNextRedex(exp);
 		while (!current.equals(run)) {
-			System.out.println("Current: " + current);
+			// System.out.println("Current: " + current);
 			current = run;
-			System.out.println("Run: " + run);
+			// System.out.println("Run: " + run);
 
 			run = runNextRedex(current);
 
@@ -189,7 +189,7 @@ public class Console {
 							exp = parser.parse(tokens);
 
 						}
-						System.out.println("BEfore dict " + exp);
+						// System.out.println("BEfore dict " + exp);
 						output = exp.toString();
 
 					}
