@@ -67,7 +67,6 @@ public class Parser {
 			return new Application(parse(subArrayList(tokens, 0, lambdaIndex)),
 					parse(subArrayList(tokens, lambdaIndex, tokens.size())));
 		} else if (last.equals(")")) {
-			// System.out.println("Test");
 			int closedParensInWay = -1;
 			for (int i = tokens.size() - 1; i >= 0; i--) {
 				if (tokens.get(i).equals(")")) {
