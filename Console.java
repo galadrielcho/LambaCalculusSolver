@@ -77,12 +77,15 @@ public class Console {
 
 	}
 
+	
 	public static Expression runNextRedex(Expression current) {
 		if (current instanceof Application) {
 			Application app = (Application) current;
 
 			if (app.left instanceof Function) {
-				// System.out.println("REDEX! " + current);
+				System.out.println("REDEX! LEFT " + app.left);
+				System.out.println("REDEX! RIGHT " + app.right);
+
 				ArrayList<Variable> freeVariables = getFreeVariables(current);
 				if (freeVariables.size() > 0) {
 					for (Variable v : freeVariables) {
@@ -98,8 +101,6 @@ public class Console {
 					// System.out.println("LEFT!");
 					return new Application(runLeft, ((Application)current).right);
 				} else {
-					// System.out.println("RIGHT!!");
-
 					Expression runRight = runNextRedex(((Application)current).right);
 					if (!((((Application)current).right).toString()).equals(runRight.toString())) {
 						return new Application(((Application)current).left, runRight);
@@ -108,8 +109,9 @@ public class Console {
 			}
 		}
 		else if (current instanceof Function) {
+			System.out.println(((Function)current).expression);
 			Expression expRun = runNextRedex(((Function) current).expression);
-			if (!(((Function)current).expression).equals(expRun)) {
+			if (!((((Function)current).expression).toString()).equals(expRun.toString())) {
 				return new Function(((Function)current).parameter, expRun);
 			}
 		}
@@ -118,13 +120,16 @@ public class Console {
 	}
 
 
+
 	public static Expression run(Expression exp) {
 		Expression current = exp;
+		System.out.println("Current: " + current);
 		Expression run = runNextRedex(exp);
 		while (!current.equals(run)) {
-			// System.out.println("Current: " + current);
 			current = run;
 			// System.out.println("Run: " + run);
+			System.out.println("Current: " + current);
+
 
 			run = runNextRedex(current);
 

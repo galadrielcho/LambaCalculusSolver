@@ -92,8 +92,7 @@ public class Parser {
 			if (inDictionary(last)) {
 
 				return dictionary.get(last);
-			} else if (last.charAt(0) >= 'a' && last.charAt(0) <= 'z'
-					|| last.charAt(0) >= 'A' && last.charAt(0) <= 'Z') {
+			} else if (last.charAt(0) >= '!' && last.charAt(0) <= '~') {
 				if (functionParameters.contains(last)) {
 					return new Variable(last, "bound");
 
