@@ -5,31 +5,14 @@ import java.util.HashMap;
 import java.util.Stack;
 
 public class Parser {
+
+	String reservedCharacters = "λ\\().; ";
+
 	/*
 	 * Turns a set of tokens into an expression.
 	 */
 
-	private HashMap<String, Expression> dictionary = new HashMap<>();
 	private Stack<String> functionParameters = new Stack<>();
-
-	public boolean inDictionary(String s) {
-		return dictionary.containsKey(s);
-	}
-
-	public Expression addToDictionary(ArrayList<String> tokens) throws ParseException {
-		Expression exp = parse(subArrayList(tokens, 2, tokens.size()));
-		dictionary.put(tokens.get(0), exp);
-
-		return exp;
-	}
-
-	public void addToDictionary(String key, Expression value) {
-		dictionary.put(key, value);
-	}
-
-	public Expression getDictValue(String s) throws ParseException {
-		return dictionary.get(s);
-	}
 
 	public ArrayList<String> subArrayList(ArrayList<String> arr, int start, int end) {
 		ArrayList<String> subset = new ArrayList<String>();
@@ -40,10 +23,14 @@ public class Parser {
 	}
 
 	private int findFirstLambdaIndex(ArrayList<String> tokens) {
+		int withinParens = 0;
 		for (int i = 0; i < tokens.size(); i++) {
 			if (tokens.get(i).equals("(")) {
-				return -1;
-			} else if (tokens.get(i).equals("λ")) {
+				withinParens++;
+			} else if (tokens.get(i).equals(")")) {
+				withinParens--;
+			}
+			else if (tokens.get(i).equals("λ") && withinParens == 0) {
 				return i;
 			}
 		}
@@ -89,10 +76,7 @@ public class Parser {
 
 		} else if (tokens.size() == 1) {
 
-			if (inDictionary(last)) {
-
-				return dictionary.get(last);
-			} else if (last.charAt(0) >= '!' && last.charAt(0) <= '~') {
+			if (last.charAt(0) >= '!' && last.charAt(0) <= '~') {
 				if (functionParameters.contains(last)) {
 					return new Variable(last, "bound");
 
