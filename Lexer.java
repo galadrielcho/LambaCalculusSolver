@@ -29,13 +29,8 @@ public class Lexer {
 
 	
 	public void addToDictionary(String key, Expression e) {
-		if (e instanceof Function) {
-			Function f = (Function) e;
-		
-			dictionary.put(key, String.format("λ%s.%s", f.parameter, f.expression));
-		} else {
-			dictionary.put(key, e.toString());
-		}
+		dictionary.put(key, e.toString());
+
 	}
 
 	public ArrayList<String> tokenize(String input) {

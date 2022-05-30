@@ -116,11 +116,12 @@ public class Console {
 
 	public static Expression run(Expression exp) {
 		Expression current = exp;
+		// System.out.println(current);
+
 		Expression run = runNextRedex(exp);
 		while (!current.equals(run)) {
 			current = run;
-
-
+			// System.out.println(current);
 			run = runNextRedex(current);
 
 		}
@@ -129,7 +130,6 @@ public class Console {
 
 		return run;
 	}
-
 	public static Expression getDictionaryNames(Expression e) {
 		if (dictionary.containsKey(e.toString())) {
 			return new Variable(dictionary.get(e.toString()), "");
@@ -168,7 +168,6 @@ public class Console {
 								dictionary.put(exp.toString(), first);
 								lexer.addToDictionary(first, exp);
 							} else {
-
 								exp = parser.parse(parser.subArrayList(tokens, 2, tokens.size()));
 
 								lexer.addToDictionary(first, exp);
@@ -184,13 +183,13 @@ public class Console {
 						}
 					} else {
 						if (tokens.get(0).equals("run")) {
-
 							exp = run(parser.parse(parser.subArrayList(tokens, 1, tokens.size())));
 						} else {
 							exp = parser.parse(tokens);
 
 						}
-						output = exp.toString();
+						
+						output = getDictionaryNames(exp).toString();
 
 					}
 				} catch (Exception e) {
