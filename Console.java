@@ -60,9 +60,6 @@ public class Console {
 				return new Function(((Function) e).parameter, replace(((Function) e).expression, swapOut, input));
 			}
 		} else if (e instanceof Application) {
-			// System.out.println("In replace, exp is " + e);
-			// System.out.println("In replace, exp is this before the aciton " + ((Application)e).left);
-			// System.out.println("In replace, the left is " + (new Application(replace(((Application) e).left, swapOut, input), replace(((Application) e).right, swapOut, input))).left);
 			return new Application(replace(((Application) e).left, swapOut, input),
 					replace(((Application) e).right, swapOut, input));
 		} else if (e instanceof Variable) {
@@ -83,8 +80,6 @@ public class Console {
 			Application app = (Application) current;
 
 			if (app.left instanceof Function) {
-				System.out.println("REDEX! LEFT " + app.left);
-				System.out.println("REDEX! RIGHT " + app.right);
 
 				ArrayList<Variable> freeVariables = getFreeVariables(current);
 				if (freeVariables.size() > 0) {
@@ -98,7 +93,6 @@ public class Console {
 			} else {
 				Expression runLeft = runNextRedex(((Application)current).left);
 				if (!((((Application)current).left).toString()).equals(runLeft.toString())) {
-					// System.out.println("LEFT!");
 					return new Application(runLeft, ((Application)current).right);
 				} else {
 					Expression runRight = runNextRedex(((Application)current).right);
@@ -109,7 +103,6 @@ public class Console {
 			}
 		}
 		else if (current instanceof Function) {
-			System.out.println(((Function)current).expression);
 			Expression expRun = runNextRedex(((Function) current).expression);
 			if (!((((Function)current).expression).toString()).equals(expRun.toString())) {
 				return new Function(((Function)current).parameter, expRun);
@@ -123,14 +116,12 @@ public class Console {
 
 	public static Expression run(Expression exp) {
 		Expression current = exp;
-		System.out.println("Current: " + current);
+		// System.out.println(current);
+
 		Expression run = runNextRedex(exp);
 		while (!current.equals(run)) {
 			current = run;
-			// System.out.println("Run: " + run);
-			System.out.println("Current: " + current);
-
-
+			// System.out.println(current);
 			run = runNextRedex(current);
 
 		}
@@ -139,7 +130,6 @@ public class Console {
 
 		return run;
 	}
-
 	public static Expression getDictionaryNames(Expression e) {
 		if (dictionary.containsKey(e.toString())) {
 			return new Variable(dictionary.get(e.toString()), "");
@@ -166,36 +156,40 @@ public class Console {
 
 			ArrayList<String> tokens = lexer.tokenize(input);
 			String output = "";
+
 			if (tokens.size() != 0) {
 				try {
 					String first = tokens.get(0);
 					Expression exp;
 					if (isStoringValue(tokens)) {
-						if (!parser.inDictionary(first)) {
+						if (!lexer.inDictionary(first)) {
 							if (tokens.get(2).equals("run")) {
 								exp = run(parser.parse(parser.subArrayList(tokens, 3, tokens.size())));
 								dictionary.put(exp.toString(), first);
-								parser.addToDictionary(first, exp);
+								lexer.addToDictionary(first, exp);
 							} else {
-								exp = parser.addToDictionary(tokens);
+								exp = parser.parse(parser.subArrayList(tokens, 2, tokens.size()));
+
+								lexer.addToDictionary(first, exp);
+
 								dictionary.put(exp.toString(), first);
 							}
-							System.out.printf("Added %s as %s.", parser.getDictValue(first).toString(), first);
+
+							System.out.printf("Added %s as %s.", exp.toString(), first);
 
 						} else {
-							System.out.printf("%s is already defined.", parser.getDictValue(first).toString());
+							System.out.printf("%s is already defined.", first.toString());
 
 						}
 					} else {
 						if (tokens.get(0).equals("run")) {
-							// SAFE
 							exp = run(parser.parse(parser.subArrayList(tokens, 1, tokens.size())));
 						} else {
 							exp = parser.parse(tokens);
 
 						}
-						// System.out.println("BEfore dict " + exp);
-						output = exp.toString();
+						
+						output = getDictionaryNames(exp).toString();
 
 					}
 				} catch (Exception e) {
