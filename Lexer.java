@@ -1,3 +1,5 @@
+// Written by Galadriel Cho and Annie Li
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;

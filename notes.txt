@@ -1,0 +1,11 @@
+a. Galadriel Cho and Annie Li
+
+b. Lab Difficulty: 8.5 - Not so arduously and awful in a way that I was completely lost, but it took a lot of thinking and in the end I wasn't able to fix all errors.
+
+c. I worked 25 hours
+
+d. My partner worked 20 hours (we often called and worked together, but I put in some extra hours at the end in an unsuccessful attempt to fix the order of redex running.)
+
+e. I worked really hard and put out my best effort to create a lab that is (mostly) functional. Therefore, I would give myself an A.
+
+f. Test cases 45, 47, 48, 49, 58, and 111 do not work :(

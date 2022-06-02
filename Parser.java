@@ -1,3 +1,4 @@
+// Written by Galadriel Cho and Annie Li
 
 import java.text.ParseException;
 import java.util.ArrayList;

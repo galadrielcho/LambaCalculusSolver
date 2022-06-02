@@ -1,3 +1,4 @@
+// Written by Galadriel Cho and Annie Li
 
 public class Variable implements Expression {
 
